@@ -3,6 +3,9 @@
 
 #include <QMainWindow>
 #include <QImage>
+#include <QTableWidgetItem>
+
+void make_tables();
 
 namespace Ui {
 class MainWin;
@@ -31,9 +34,6 @@ private:
     Ui::MainWin *ui;
     QImage img_src;
     int dither_method;
-
-    float pal[3][256];
-    int pal_c;
 };
 
 #endif // MAINWIN_H

@@ -7,20 +7,51 @@
 #include <QImageWriter>
 #include <QPixmap>
 #include <QMessageBox>
+#include <QScrollBar>
 #include "mainwin.h"
 #include "ui_mainwin.h"
+#include "palettem.h"
+
+template<typename F>
+void adjust_table_cells(F set_sz, int dim, int n)
+{
+    float wf = dim / (float) n;
+    float r = wf; // right edge of current cell
+    int l = 0; // left edge of current cell
+    for( int i=0; i<n; ++i ) {
+        int w = (int) r - l;
+        l += w;
+        r += wf;
+        set_sz(i,w);
+    }
+}
+
+static void cram_table(QTableView *t)
+{
+    auto m = t->model();
+    int
+        nc = m->columnCount(), nr = m->rowCount(),
+        w = t->width(), h = t->height();
+    adjust_table_cells(
+        [&](int a,int b){t->setColumnWidth(a,b);}, w, nc);
+    adjust_table_cells(
+        [&](int a,int b){t->setRowHeight(a,b);}, h, nr);
+}
+
 
 template<typename F> QImage filter(QImage const &src, F f)
 {
     QImage dst(src.size(), src.format());
-    int y, x, w=src.width(), h=src.height();
+    int y, x, w=src.width()*4, h=src.height();
     for( y=0; y<h; ++y ) {
         uchar const *s = src.scanLine(y);
         uchar *d = dst.scanLine(y);
-        for( x=0; x<w; ++x ) {
-            for( int c=0; c<3; ++c ) {
-                d[4*x+c] = f( s[4*x+c] << 7 ) >> 7;
-            }
+        for( x=0; x<w; x+=4 ) {
+            // hopefully the stupid vectorizer works at least some time
+            d[x] = f( s[x] << 7 ) >> 7;
+            d[x+1] = f( s[x+1] << 7 ) >> 7;
+            d[x+2] = f( s[x+2] << 7 ) >> 7;
+            d[x+3] = f( s[x+3] << 7 ) >> 7;
         }
     }
     return dst;
@@ -35,7 +66,8 @@ static float LtosRGBf(float c) {
 
 static int sRGBtoL_table[0x8000];
 static int LtosRGB_table[0x8000];
-static void make_tables()
+
+void make_tables()
 {
     const int k = 0x8000;
     const float df = 1.0f / k;
@@ -61,8 +93,14 @@ static int rndh() // -16383 .. 16383
     return 0x3fff - c;
 }
 
+#if 1
 static int sRGBtoL(int c) { return sRGBtoL_table[c & 0x7fff]; }
 static int LtosRGB(int c) { return LtosRGB_table[c & 0x7fff]; }
+#else
+static int sRGBtoL(int c) { return sRGBtoLf((1./0x7fff)*c)*0x7fff; }
+static int LtosRGB(int c) { return LtosRGBf((1./0x7fff)*c)*0x7fff; }
+#endif
+
 static int qr(int x) { return (x + rndh() > 16384)*32767; }
 
 MainWin::MainWin(QWidget *parent) :
@@ -71,8 +109,13 @@ MainWin::MainWin(QWidget *parent) :
 {
     ui->setupUi(this);
     ui->comboBox->addItems({"None","Random"});
-    make_tables();
+
+    auto m = new PaletteM(this);
+    ui->tbpal->setModel(m);
+    ui->hsplit3->setSizes({20,80,20});
+
     load_src("/home/arho/Pictures/t3_5uyryd.jpeg");
+    scaleSrc();
 }
 
 MainWin::~MainWin()
@@ -106,10 +149,11 @@ static void initializeImageFileDialog(QFileDialog &dialog, QFileDialog::AcceptMo
  * gamma-correct scaling
  * use nearest scaling when upscaling, linear? filter when downscaling
  */
-static auto gscaled(QImage const &i, int w, int h, Qt::AspectRatioMode m)
+auto gscaled(QImage const &i, int w, int h, Qt::AspectRatioMode m)
 {
     auto t = i.width() > w && i.height() > h ?
     Qt::SmoothTransformation : Qt::FastTransformation;
+    //w &= ~3; h &= ~3;
     return filter(filter(i,sRGBtoL).scaled(w,h,m,t),LtosRGB);
 }
 
@@ -129,7 +173,7 @@ tr("Cannot load %1: %2")
     int r = 500;
     if (newImage.width() > r || newImage.height() > r) {
         newImage = gscaled(newImage, r, r, Qt::KeepAspectRatio);
-        std::cerr << "reducing input image size to "
+        std::cerr << "reduced input image size to "
         << newImage.width() << 'x' << newImage.height() << '\n';
     }
 
@@ -149,6 +193,8 @@ void MainWin::scaleSrc()
         setImg(ui->srv_view, img_src);
         preview();
     }
+
+    cram_table( ui->tbpal );
 }
 
 void MainWin::open()
@@ -168,22 +214,29 @@ void MainWin::resizeEvent(QResizeEvent *ev)
     scaleSrc();
 }
 
-static auto quantize(QImage const &p, int dither_method)
+auto dither_rnd(QImage const &p)
+{
+    return filter( p,
+    [](int x) {
+        return LtosRGB(qr(sRGBtoL(x)));
+    });
+}
+auto quant_clip(QImage const &p)
+{
+    return filter( p,
+    [](int x) {
+        return (x > (int)(LtosRGBf(0.5f)*32768))*32767;
+    });
+}
+
+auto quantize(QImage const &p, int dither_method)
 {
     switch(dither_method) {
         case 1:
-            return filter( p,
-            [](int x) {
-                return LtosRGB(qr(sRGBtoL(x)));
-            });
-            break;
+            return dither_rnd(p);
         default:
         case 0:
-            return filter( p,
-            [](int x) {
-                return (x > (int)(LtosRGBf(0.5f)*32768))*32767;
-            });
-            break;
+            return quant_clip(p);
     }
 }
 
