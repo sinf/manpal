@@ -23,7 +23,7 @@
       <widget class="QScrollArea" name="scrollArea">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-         <horstretch>0</horstretch>
+         <horstretch>1</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
@@ -179,77 +179,87 @@
        </widget>
       </widget>
       <widget class="QSplitter" name="splitter">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Ignored" vsizetype="Expanding">
+         <horstretch>2</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="orientation">
         <enum>Qt::Vertical</enum>
        </property>
-       <widget class="QGraphicsView" name="gv_pal">
+       <widget class="QTableWidget" name="tableWidget">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
           <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
+          <verstretch>1</verstretch>
          </sizepolicy>
         </property>
-        <property name="minimumSize">
-         <size>
-          <width>20</width>
-          <height>20</height>
-         </size>
-        </property>
        </widget>
-       <widget class="QWidget" name="">
-        <layout class="QHBoxLayout" name="images">
-         <item>
-          <widget class="QLabel" name="srv_view">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>20</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="cursor">
-            <cursorShape>CrossCursor</cursorShape>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="scaledContents">
-            <bool>false</bool>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="out_view">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>20</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="scaledContents">
-            <bool>false</bool>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-          </widget>
+       <widget class="QFrame" name="frame">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>1</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout">
+         <item row="0" column="0">
+          <layout class="QHBoxLayout" name="images" stretch="1,1">
+           <item>
+            <widget class="QLabel" name="srv_view">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
+               <horstretch>1</horstretch>
+               <verstretch>1</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>20</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="cursor">
+              <cursorShape>CrossCursor</cursorShape>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="scaledContents">
+              <bool>false</bool>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="out_view">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
+               <horstretch>1</horstretch>
+               <verstretch>1</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="scaledContents">
+              <bool>false</bool>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </item>
         </layout>
        </widget>
@@ -257,22 +267,6 @@
      </widget>
     </item>
    </layout>
-   <zorder>gv_src</zorder>
-   <zorder>gv_out</zorder>
-   <zorder>horizontalSlider</zorder>
-   <zorder>horizontalSlider_2</zorder>
-   <zorder>horizontalSlider_3</zorder>
-   <zorder>horizontalSlider_4</zorder>
-   <zorder>horizontalSlider_5</zorder>
-   <zorder>checkBox</zorder>
-   <zorder>dit_ss</zorder>
-   <zorder>comboBox</zorder>
-   <zorder>spinBox</zorder>
-   <zorder>doubleSpinBox</zorder>
-   <zorder>somelabel</zorder>
-   <zorder></zorder>
-   <zorder>gv_pal</zorder>
-   <zorder>scrollArea</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
@@ -317,37 +311,37 @@
   </widget>
   <action name="actionLoad">
    <property name="text">
-    <string>Load</string>
+    <string>&amp;Load</string>
    </property>
   </action>
   <action name="actionLoad_2">
    <property name="text">
-    <string>Import</string>
+    <string>&amp;Import</string>
    </property>
   </action>
   <action name="actionExport">
    <property name="text">
-    <string>Export GIMP</string>
+    <string>&amp;Export GIMP</string>
    </property>
   </action>
   <action name="actionExport_PS">
    <property name="text">
-    <string>Export PS</string>
+    <string>Export &amp;PS</string>
    </property>
   </action>
   <action name="actionExport_PPM">
    <property name="text">
-    <string>Export PBM</string>
+    <string>E&amp;xport PBM</string>
    </property>
   </action>
   <action name="actionClear">
    <property name="text">
-    <string>Clear</string>
+    <string>&amp;Clear</string>
    </property>
   </action>
   <action name="actionAbout">
    <property name="text">
-    <string>About</string>
+    <string>&amp;About</string>
    </property>
   </action>
   <action name="actionReset_settings">
@@ -357,12 +351,12 @@
   </action>
   <action name="actionDefault_settings">
    <property name="text">
-    <string>Reset settings</string>
+    <string>&amp;Reset settings</string>
    </property>
   </action>
   <action name="actionSort_by_value">
    <property name="text">
-    <string>Sort</string>
+    <string>&amp;Sort</string>
    </property>
   </action>
   <action name="actionSort_by_hue">
@@ -372,7 +366,7 @@
   </action>
   <action name="actionCreate_from_histogram">
    <property name="text">
-    <string>Generate from histogram</string>
+    <string>&amp;Generate from histogram</string>
    </property>
   </action>
   <action name="actionAllocate">
@@ -382,7 +376,7 @@
   </action>
   <action name="actionCreate_grayscale">
    <property name="text">
-    <string>Generate grayscale</string>
+    <string>Ge&amp;nerate grayscale</string>
    </property>
   </action>
  </widget>
@@ -396,8 +390,8 @@
    <slot>open()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>76</x>
-     <y>58</y>
+     <x>-1</x>
+     <y>-1</y>
     </hint>
     <hint type="destinationlabel">
      <x>199</x>
