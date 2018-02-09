@@ -3,6 +3,7 @@
 #include <iostream>
 #include <QFileDialog>
 #include <QStandardPaths>
+#include <QKeyEvent>
 #include <QImageReader>
 #include <QImageWriter>
 #include <QPixmap>
@@ -27,19 +28,17 @@ void adjust_table_cells(F set_sz, int dim, int n)
     float r = wf; // right edge of current cell
     int l = 0; // left edge of current cell
     for( int i=0; i<n; ++i ) {
-        int w = (int) r - l;
+        int w = (int) ( r + 0.5f ) - l;
         l += w;
         r += wf;
         set_sz(i,w);
     }
 }
 
-static void cram_table(QTableView *t)
+static void cram_table(QTableView *t, int nc, int nr)
 {
     auto m = t->model();
-    int
-        nc = m->columnCount(), nr = m->rowCount(),
-        w = t->width(), h = t->height();
+    int w = t->width(), h = t->height();
     adjust_table_cells(
         [&](int a,int b){t->setColumnWidth(a,b);}, w, nc);
     adjust_table_cells(
@@ -88,30 +87,9 @@ template<typename F> QImage filter(QImage const &src, F f)
     return filter2<F>(src,f,f,f,f);
 }
 
-static float sRGBtoLf(float c) {
-    return c > 0.04045f ? powf((c+0.055f)*(1./1.055f),2.4f) : c/12.92f;
-}
-static float LtosRGBf(float c) {
-    return c > .0031308f ? 1.055f*powf(c,1/2.4f) - 0.055 : c*12.92f;
-}
-
 static int clip_s16(int x)
 {
     return x < 0 ? 0 : ( x > 0x7fff ? 0x7fff : x );
-}
-
-void make_tables()
-{
-    const int k = 0x8000;
-    const float df = 1.0f / k;
-    float f = 0;
-    for( int i=0; i<k; ++i ) {
-        LtosRGB_table[i] = LtosRGBf( f ) * k;
-        sRGBtoL_table[i] = sRGBtoLf( f ) * k;
-        assert(LtosRGB_table[i] >= 0 && LtosRGB_table[i] < k);
-        assert(sRGBtoL_table[i] >= 0 && sRGBtoL_table[i] < k);
-        f += df;
-    }
 }
 
 static int rnd() // -32767 .. 32767
@@ -126,16 +104,6 @@ static int rndh() // -16383 .. 16383
     return 0x3fff - c;
 }
 
-#if 1
-static int sRGBtoL(int c) { return sRGBtoL_table[c & 0x7fff]; }
-static int LtosRGB(int c) { return LtosRGB_table[c & 0x7fff]; }
-#else
-static int sRGBtoL(int c) { return sRGBtoLf((1./0x7fff)*c)*0x7fff; }
-static int LtosRGB(int c) { return LtosRGBf((1./0x7fff)*c)*0x7fff; }
-#endif
-
-static int qr(int x) { return (x + rndh() > 16384)*32767; }
-
 MainWin::MainWin(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWin)
@@ -143,8 +111,7 @@ MainWin::MainWin(QWidget *parent) :
     ui->setupUi(this);
     ui->dit_mode->addItems({DITHER_MODES});
 
-    auto m = new PaletteM(this);
-    ui->tbpal->setModel(m);
+    ui->tbpal->setModel(new PaletteM(this));
     ui->hsplit3->setSizes({20,80,20});
 
     load_src("/home/arho/Pictures/t3_5uyryd.jpeg");
@@ -154,6 +121,16 @@ MainWin::MainWin(QWidget *parent) :
 MainWin::~MainWin()
 {
     delete ui;
+}
+
+void MainWin::setColorCount(int x)
+{
+    the_pal_c = x < 0 ? 0 : ( x > 256 ? 256 : x );
+    auto t = ui->tbpal;
+    auto m = t->model();
+    m->dataChanged(m->index(1,1),m->index(m->columnCount(),m->rowCount()));
+    cram_table(t, m->columnCount(), dpyRows());
+    preview();
 }
 
 static void initializeImageFileDialog(QFileDialog &dialog, QFileDialog::AcceptMode acceptMode)
@@ -227,7 +204,7 @@ void MainWin::scaleSrc()
         preview();
     }
 
-    cram_table( ui->tbpal );
+    cram_table( ui->tbpal, ui->tbpal->colorCount(), dpyRows() );
 }
 
 void MainWin::open()
@@ -247,14 +224,13 @@ void MainWin::resizeEvent(QResizeEvent *ev)
     scaleSrc();
 }
 
-static int pal_lookup(int x)
-{
-    return (x > (int)(LtosRGBf(0.5f)*32768))*32767;
-}
-
 auto quant_clip(QImage const &p)
 {
-    return filter( p, pal_lookup );
+    return filter_rgb( p, [](int r, int g, int b) {
+        auto x0 = linz3(ivec3(r,g,b));
+        auto x1 = unmap_palette(map_palette(x0));
+        return (x1>>7).rgb();
+    });
 }
 
 /* COLOR is a thing that can be calculated like an integer */
@@ -366,7 +342,8 @@ typedef DitherED<SL0,SL1,nullptr, 2, 1, 2, ivec3> DitherSL;
 
 static ivec3 qn3(ivec3 x)
 {
-    return x.step(8192,0,0x7fff);
+    return unmap_palette(map_palette(x));
+    //return x.step(8192,0,0x7fff);
 }
 
 template<typename T>
@@ -416,4 +393,48 @@ void MainWin::preview()
         // dither in image space
         setImg(ui->out_view, quantize(img_src, dither_method));
     }
+}
+
+QColor MainWin::sample()
+{
+    auto a = window()->cursor().pos();
+    auto g = this->grab(QRect(this->mapFromGlobal(a),QSize(1,1)));
+    auto x = g.toImage().pixel(0,0);
+    auto c = QColor(x);
+    ui->color_box->setStyleSheet(QString("background-color: %1;").arg(c.name()));
+    return c;
+}
+
+void MainWin::keyPressEvent(QKeyEvent *e)
+{
+    switch(e->key()) {
+        case Qt::Key::Key_A:
+            if ( the_pal_c < 256 ) {
+                the_pal[the_pal_c] = linearize(sample());
+                ui->pal_c->setValue(the_pal_c);
+                setColorCount(the_pal_c + 1);
+            }
+            break;
+        case Qt::Key::Key_F:
+        do {
+            auto ii=ui->tbpal->currentIndex();
+            the_pal[ii.column()+ii.row()*8]=linearize(sample());
+            setColorCount(the_pal_c);
+        }while(0);
+            break;
+        default:
+            break;
+    }
+}
+
+void MainWin::mouseMoveEvent(QMouseEvent *e)
+{
+#if 0
+    static int x0=-100, y0=-100;
+    int x = e->x(), y = e->y();
+    int dx = x-x0;
+    int dy = y-y0;
+    if ( dx*dx + dy*dy > 7 ) x0=x, y0=y,
+#endif
+    sample();
 }

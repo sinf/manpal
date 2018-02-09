@@ -8,6 +8,9 @@ template<typename T> struct vec3 {
     vec3(T x,T y, T z) { s[0]=x; s[1]=y; s[2]=z; }
     vec3(T x) { s[0]=x; s[1]=x; s[2]=x; }
 
+    template<typename C>
+    vec3(C c) { s[0]=c.red(); s[1]=c.green(); s[2]=c.blue(); }
+
 auto operator+(vec3<T> a) { return vec3<T>(a.s[0]+s[0], a.s[1]+s[1], a.s[2]+s[2]); }
 auto operator-(vec3<T> a) { return vec3<T>(s[0]-a.s[0], s[1]-a.s[1], s[2]-a.s[2]); }
 auto operator*(vec3<T> a) { return vec3<T>(a.s[0]*s[0], a.s[1]*s[1], a.s[2]*s[2]); }
@@ -37,6 +40,8 @@ auto operator/(vec3<T> a) { return vec3<T>(a.s[0]/s[0], a.s[1]/s[1], a.s[2]/s[2]
 
     template<typename H>
     auto lookup(H table[]) { return vec3<T>(table[s[0]], table[s[1]], table[s[2]]); }
+
+    long lensq() { return s[0]*s[0] + s[1]*s[1] + s[2]*s[2]; }
 
     int rgb() {
         int b = 8, m = 255;
