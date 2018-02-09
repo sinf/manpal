@@ -18,6 +18,7 @@ SOURCES += main.cpp\
     palettem.cpp
 
 HEADERS  += mainwin.h \
-    palettem.h
+    palettem.h \
+    vec3.h
 
 FORMS    += mainwin.ui
