@@ -25,8 +25,8 @@
       </property>
       <widget class="QFrame" name="optFrame">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
-         <horstretch>15</horstretch>
+        <sizepolicy hsizetype="Preferred" vsizetype="Ignored">
+         <horstretch>10</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
@@ -56,7 +56,7 @@
          <widget class="QScrollArea" name="optionPanel">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-            <horstretch>0</horstretch>
+            <horstretch>10</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
@@ -73,14 +73,14 @@
            <property name="geometry">
             <rect>
              <x>0</x>
-             <y>0</y>
-             <width>97</width>
+             <y>-36</y>
+             <width>47</width>
              <height>315</height>
             </rect>
            </property>
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
+            <sizepolicy hsizetype="Ignored" vsizetype="Preferred">
+             <horstretch>10</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
@@ -95,7 +95,7 @@
                 <item>
                  <widget class="QSlider" name="horizontalSlider">
                   <property name="sizePolicy">
-                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                   <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
@@ -162,22 +162,22 @@
               <item>
                <layout class="QVBoxLayout" name="pal_opts">
                 <item>
-                 <widget class="QLabel" name="label_3">
+                 <widget class="QLabel" name="label_widthctrl">
                   <property name="sizePolicy">
-                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                   <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
                   </property>
                   <property name="text">
-                   <string>Dither</string>
+                   <string>Dither    </string>
                   </property>
                  </widget>
                 </item>
                 <item>
-                 <widget class="QCheckBox" name="checkBox">
+                 <widget class="QCheckBox" name="dit_pp">
                   <property name="sizePolicy">
-                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                   <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
@@ -217,7 +217,7 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QComboBox" name="comboBox">
+                 <widget class="QComboBox" name="dit_mode">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
                     <horstretch>0</horstretch>
@@ -240,12 +240,24 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QSpinBox" name="spinBox">
+                 <widget class="QSpinBox" name="dit_ed_fract">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
+                  </property>
+                  <property name="minimum">
+                   <number>-4096</number>
+                  </property>
+                  <property name="maximum">
+                   <number>4096</number>
+                  </property>
+                  <property name="singleStep">
+                   <number>32</number>
+                  </property>
+                  <property name="value">
+                   <number>1024</number>
                   </property>
                  </widget>
                 </item>
@@ -299,13 +311,13 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>109</width>
+          <width>85</width>
           <height>281</height>
          </rect>
         </property>
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-          <horstretch>0</horstretch>
+          <horstretch>100</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
@@ -314,7 +326,7 @@
           <widget class="QFrame" name="img_frame">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-             <horstretch>0</horstretch>
+             <horstretch>100</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
@@ -736,11 +748,77 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>dit_mode</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>MainWin</receiver>
+   <slot>setDitherMethod(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>40</x>
+     <y>243</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>155</x>
+     <y>158</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>dit_ss</sender>
+   <signal>stateChanged(int)</signal>
+   <receiver>MainWin</receiver>
+   <slot>preview()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>40</x>
+     <y>192</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>155</x>
+     <y>158</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>dit_ed_fract</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWin</receiver>
+   <slot>setDitherE(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>31</x>
+     <y>258</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>155</x>
+     <y>158</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>dit_pp</sender>
+   <signal>stateChanged(int)</signal>
+   <receiver>MainWin</receiver>
+   <slot>setDitherPP(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>31</x>
+     <y>128</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>155</x>
+     <y>158</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>open()</slot>
   <slot>scaleSrc()</slot>
   <slot>preview()</slot>
   <slot>setDitherMethod(int)</slot>
+  <slot>setDitherE(int)</slot>
+  <slot>setDitherPP(int)</slot>
  </slots>
 </ui>

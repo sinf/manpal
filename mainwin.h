@@ -6,6 +6,9 @@
 #include <QTableWidgetItem>
 
 void make_tables();
+extern int
+ed_err_fract,// 10 fractional bits. used to limit dither error distribution
+ed_pingpong_enable;// alternate diffusion direction each scanline
 
 namespace Ui {
 class MainWin;
@@ -29,6 +32,8 @@ private slots:
     void scaleSrc();
     void preview();
     void setDitherMethod(int x) { dither_method=x; preview(); }
+    void setDitherE(int x) { ed_err_fract=x; preview(); }
+    void setDitherPP(int x) { ed_pingpong_enable=x; preview(); }
 
 private:
     Ui::MainWin *ui;
