@@ -5,7 +5,9 @@
 #include <QImage>
 #include <QTableWidgetItem>
 
+extern int sRGBtoL_table[0x8000], LtosRGB_table[0x8000];
 void make_tables();
+
 extern int
 ed_err_fract,// 10 fractional bits. used to limit dither error distribution
 ed_pingpong_enable;// alternate diffusion direction each scanline

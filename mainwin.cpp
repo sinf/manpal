@@ -11,10 +11,14 @@
 #include "mainwin.h"
 #include "ui_mainwin.h"
 #include "palettem.h"
+#include "vec3.h"
 
-#define DITHER_MODES "None","Random","Jarvis Judice Ninke","Sierra 2-row", "Sierra 3-row", "Sierra Lite"
+#define DITHER_MODES "None","Jarvis Judice Ninke","Sierra 2-row", "Sierra 3-row", "Sierra Lite"
 int ed_err_fract = 1024;
 int ed_pingpong_enable = 0;
+
+int sRGBtoL_table[0x8000];
+int LtosRGB_table[0x8000];
 
 template<typename F>
 void adjust_table_cells(F set_sz, int dim, int n)
@@ -40,6 +44,25 @@ static void cram_table(QTableView *t)
         [&](int a,int b){t->setColumnWidth(a,b);}, w, nc);
     adjust_table_cells(
         [&](int a,int b){t->setRowHeight(a,b);}, h, nr);
+}
+
+template<typename F>
+QImage filter_rgb(QImage const &src, F f)
+{
+    QImage dst(src.size(), src.format());
+    int y, x, w=src.width(), h=src.height();
+    for( y=0; y<h; ++y ) {
+        auto s = (int32_t const*) src.scanLine(y);
+        auto d = (int32_t*) dst.scanLine(y);
+        for( x=0; x<w; x++ ) {
+            int32_t rgb = s[x];
+            int r = ( rgb & 0xFF ) << 7;
+            int g = ( rgb & 0xff00 ) >> 1;
+            int b = ( rgb & 0xff0000 ) >> 9;
+            d[x] = f( r, g, b );
+        }
+    }
+    return dst;
 }
 
 template<typename FR, typename FG, typename FB, typename FA>
@@ -71,9 +94,6 @@ static float sRGBtoLf(float c) {
 static float LtosRGBf(float c) {
     return c > .0031308f ? 1.055f*powf(c,1/2.4f) - 0.055 : c*12.92f;
 }
-
-static int sRGBtoL_table[0x8000];
-static int LtosRGB_table[0x8000];
 
 static int clip_s16(int x)
 {
@@ -227,14 +247,6 @@ void MainWin::resizeEvent(QResizeEvent *ev)
     scaleSrc();
 }
 
-auto dither_rnd(QImage const &p)
-{
-    return filter( p,
-    [](int x) {
-        return LtosRGB(qr(sRGBtoL(x)));
-    });
-}
-
 static int pal_lookup(int x)
 {
     return (x > (int)(LtosRGBf(0.5f)*32768))*32767;
@@ -245,9 +257,13 @@ auto quant_clip(QImage const &p)
     return filter( p, pal_lookup );
 }
 
-template<int const R0[], int const R1[], int const R2[], int cols, int off_x, int shr>
+/* COLOR is a thing that can be calculated like an integer */
+template<
+    int const R0[], int const R1[], int const R2[],
+    int cols, int off_x, int shr, typename COLOR>
 struct DitherED {
-    int *buf[4];
+
+    COLOR *buf[4];
     int img_w;
     int cur_x_=0;
     int pingpong=0;
@@ -271,9 +287,9 @@ struct DitherED {
     DitherED(int w)
     {
         img_w = w;
-        int bufsize = w * sizeof(buf[0][0]);
+        int bufsize = w * sizeof(COLOR);
         for( int i=0; i<4; ++i ) {
-            buf[i] = new int[w + 32] + 16;
+            buf[i] = new COLOR[w + 32] + 16;
             memset(buf[i], 0, bufsize);
         }
     }
@@ -285,20 +301,20 @@ struct DitherED {
     }
 
     void endln() {
-        int *b0 = buf[0];
+        auto b0 = buf[0];
         buf[0] = buf[1];
         buf[1] = buf[2];
         buf[2] = buf[3];
         buf[3] = b0;
     }
 
-    int pixel(int c0, int cur_x, int neg)
+    template<typename Q>
+    COLOR pixel1(COLOR c0, int cur_x, int neg, Q quantized)
     {
         int cur_x1 = cur_x + ( neg & 1 );
-        int cur_e = buf[0][cur_x] >> shr;
-        int c1 = pal_lookup( c0 - cur_e );
-        int e = c1 - c0;
-        //c1 = clip_s16(abs(e));
+        COLOR cur_e = buf[0][cur_x] >> shr;
+        COLOR c1 = quantized(c0 - cur_e);
+        COLOR e = c1 - c0;
 
         e = e * ed_err_fract >> 10; // reduce distributed error by some fraction
         buf[3][cur_x] = 0; // wipe the next bottom line
@@ -312,9 +328,10 @@ struct DitherED {
         return c1;
     }
 
-    int pixel(int c0)
+    template<typename Q>
+    COLOR pixel(COLOR c0, Q qqqq)
     {
-        int c = pixel(c0, cur_x_, pingpong);
+        COLOR c = pixel1(c0, cur_x_, pingpong, qqqq);
         cur_x_ += cur_x_inc;
         if ( (unsigned) cur_x_ >= (unsigned) img_w ) {
             cur_x_ = 0;
@@ -332,53 +349,57 @@ struct DitherED {
 static constexpr int JJN0[] =                {K(7),K(5)};
 static constexpr int JJN1[] = {K(3),K(5),K(7),K(5),K(3)};
 static constexpr int JJN2[] = {K(1),K(3),K(5),K(3),K(1)};
-typedef DitherED<JJN0,JJN1,JJN2, 5, 3, 12> DitherJJN;
+typedef DitherED<JJN0,JJN1,JJN2, 5, 3, 12, ivec3> DitherJJN;
 
 static constexpr int S2R0[] =       {4,3};
 static constexpr int S2R1[] = {1,2,3,2,1};
-typedef DitherED<S2R0,S2R1,nullptr, 5, 3, 4> DitherS2;
+typedef DitherED<S2R0,S2R1,nullptr, 5, 3, 4, ivec3> DitherS2;
 
 static constexpr int S3R0[] =       {5,3};
 static constexpr int S3R1[] = {2,4,5,4,2};
 static constexpr int S3R2[] = {0,2,3,2,0};
-typedef DitherED<S3R0,S3R1,nullptr, 5, 3, 5> DitherS3;
+typedef DitherED<S3R0,S3R1,nullptr, 5, 3, 5, ivec3> DitherS3;
 
 static constexpr int SL0[] =    {2};
 static constexpr int SL1[] = {1, 1};
-typedef DitherED<SL0,SL1,nullptr, 2, 1, 2> DitherSL;
+typedef DitherED<SL0,SL1,nullptr, 2, 1, 2, ivec3> DitherSL;
+
+static ivec3 qn3(ivec3 x)
+{
+    return x.step(8192,0,0x7fff);
+}
 
 template<typename T>
 auto dither_ed(QImage const &p)
 {
-    int w = p.width();
-    T r(w), g(w), b(w);
-    return filter2( p,
-        [&r] (int c) { return r.pixel(c); },
-        [&g] (int c) { return g.pixel(c); },
-        [&b] (int c) { return b.pixel(c); },
-        [] (int) { return 0; }
+    T ed(p.width());
+    return filter_rgb( p, [&ed] (int r, int g, int b)
+        {
+            auto c0 = ivec3(r,g,b).lookup(sRGBtoL_table);
+            auto c1 = ed.pixel(c0,qn3);
+            auto c2 = (c1 & 0x7fff).lookup(LtosRGB_table);
+            return (c2 >> 7).rgb();
+        }
     );
 }
 
 auto quantize(QImage const &p, int dither_method)
 {
     char tmp[][100] = {DITHER_MODES};
-    static_assert(sizeof(tmp)/100 == 6, "aa");
+    static_assert(sizeof(tmp)/100 == 5, "remember to update this switch here");
     switch(dither_method) {
         case 0: return quant_clip(p);
-        case 1: return dither_rnd(p);
-        case 2: return dither_ed<DitherJJN>(p);
-        case 3: return dither_ed<DitherS2>(p);
-        case 4: return dither_ed<DitherS3>(p);
-        case 5: return dither_ed<DitherSL>(p);
+        case 1: return dither_ed<DitherJJN>(p);
+        case 2: return dither_ed<DitherS2>(p);
+        case 3: return dither_ed<DitherS3>(p);
+        case 4: return dither_ed<DitherSL>(p);
         default: return p;
     }
 }
 
 static auto prefilter(QImage const &p)
 {
-    return p;
-    // gray test
+    //return p;
     return p.convertToFormat(QImage::Format_Grayscale8).convertToFormat(QImage::Format_RGBX8888);
 }
 
@@ -390,9 +411,9 @@ void MainWin::preview()
     if ( ss < is && ui->dit_ss->isChecked() ) {
         // dither in screen space for faster updates
         auto p = ui->srv_view->pixmap()->toImage();
-        ui->out_view->setPixmap(QPixmap::fromImage(quantize(prefilter(p), dither_method)));
+        ui->out_view->setPixmap(QPixmap::fromImage(quantize(p, dither_method)));
     } else {
         // dither in image space
-        setImg(ui->out_view, quantize(prefilter(img_src), dither_method));
+        setImg(ui->out_view, quantize(img_src, dither_method));
     }
 }
