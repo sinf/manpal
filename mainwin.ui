@@ -481,7 +481,10 @@
          <enum>QAbstractItemView::ScrollPerPixel</enum>
         </property>
         <property name="showGrid">
-         <bool>false</bool>
+         <bool>true</bool>
+        </property>
+        <property name="gridStyle">
+         <enum>Qt::DotLine</enum>
         </property>
         <property name="wordWrap">
          <bool>false</bool>
@@ -541,12 +544,15 @@
             </widget>
            </item>
            <item>
-            <widget class="QSpinBox" name="spinBox_2">
+            <widget class="QSpinBox" name="pal_c">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
+             </property>
+             <property name="maximum">
+              <number>256</number>
              </property>
             </widget>
            </item>
@@ -566,15 +572,45 @@
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="pushButton_2">
+          <widget class="QPlainTextEdit" name="plainTextEdit">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Ignored" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="verticalScrollBarPolicy">
+            <enum>Qt::ScrollBarAlwaysOff</enum>
+           </property>
+           <property name="horizontalScrollBarPolicy">
+            <enum>Qt::ScrollBarAlwaysOff</enum>
+           </property>
+           <property name="sizeAdjustPolicy">
+            <enum>QAbstractScrollArea::AdjustToContents</enum>
+           </property>
+           <property name="plainText">
+            <string>A: add
+R: replace
+... etc</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="color_box">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
+           <property name="frameShape">
+            <enum>QFrame::Box</enum>
+           </property>
+           <property name="frameShadow">
+            <enum>QFrame::Raised</enum>
+           </property>
            <property name="text">
-            <string>PushButton</string>
+            <string/>
            </property>
           </widget>
          </item>
@@ -812,6 +848,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>pal_c</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWin</receiver>
+   <slot>setColorCount(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>278</x>
+     <y>238</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>155</x>
+     <y>158</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>open()</slot>
@@ -820,5 +872,6 @@
   <slot>setDitherMethod(int)</slot>
   <slot>setDitherE(int)</slot>
   <slot>setDitherPP(int)</slot>
+  <slot>setColorCount(int)</slot>
  </slots>
 </ui>

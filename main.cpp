@@ -1,5 +1,6 @@
 #include "mainwin.h"
 #include <QApplication>
+#include "palettem.h"
 
 int main(int argc, char *argv[])
 {
