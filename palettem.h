@@ -6,33 +6,33 @@
 #include <QAbstractTableModel>
 #include "vec3.h"
 
-extern QColor the_pal[256];
+// last color is never used
+extern ivec3 the_pal_iv[257]; // linear color space
+extern QColor the_pal[257]; // qt color space (nonlinear?)
 extern int the_pal_c;
-extern int sRGBtoL_table[0x8000];
-extern int LtosRGB_table[0x8000];
 
-QColor linearize(QColor c);
-QColor unlinearize(QColor c);
+void set_color(int i, QColor c);
+int add_color(QColor c);
+void del_color(int i);
 int map_palette(ivec3);
-ivec3 unmap_palette(int i);
+void sort_palette();
+
+// slow but accurate
 float sRGBtoLf(float c);
 float LtosRGBf(float c);
-void make_tables();
+
+extern int sRGBtoL_table[0x8000];
+extern int LtosRGB_table[0x8000];
 int sRGBtoL(int c);
 int LtosRGB(int c);
-
-#define linz3(v) ((v)&0x7fff).lookup(sRGBtoL_table)
-#define unlinz3(v) ((v)&0x7fff).lookup(LtosRGB_table)
+void make_tables(); // initialize tables used above
 
 class PaletteM : public QAbstractTableModel
 {
 public:
-    QColor *pal; // always expect 256 entries
+    QColor *pal; // always 256 entries
 
-    PaletteM(QObject *p=nullptr) : QAbstractTableModel(p)
-    {
-        pal = the_pal;
-    }
+    PaletteM(QObject *p=nullptr) : QAbstractTableModel(p) { pal = the_pal; }
 
     int columnCount(const QModelIndex &) const { return 8; }
     int rowCount(const QModelIndex &) const { return 32; }
@@ -46,6 +46,8 @@ public:
         | Qt::ItemNeverHasChildren;
         // Qt::ItemIsDropEnabled | Qt::ItemIsDragEnabled
     }
+
+    QModelIndex getLast();
 };
 
 #endif // PALETTEM_H

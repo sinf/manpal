@@ -1,6 +1,9 @@
 #ifndef VEC3
 #define VEC3
 
+#define qcolor_to_ivec3(c) ivec3(c.redF()*0x7fff, c.greenF()*0x7fff, c.blueF()*0x7fff)
+#define qcolor_to_ivec3_s(c) ivec3(sRGBtoLf(c.redF())*0x7fff, sRGBtoLf(c.greenF())*0x7fff, sRGBtoLf(c.blueF())*0x7fff)
+
 template<typename T> struct vec3 {
     T s[3];
 
@@ -41,11 +44,12 @@ auto operator/(vec3<T> a) { return vec3<T>(a.s[0]/s[0], a.s[1]/s[1], a.s[2]/s[2]
     template<typename H>
     auto lookup(H table[]) { return vec3<T>(table[s[0]], table[s[1]], table[s[2]]); }
 
-    long lensq() { return s[0]*s[0] + s[1]*s[1] + s[2]*s[2]; }
+    template<typename A>
+    A lensq() { return (A)s[0]*s[0] + (A)s[1]*s[1] + (A)s[2]*s[2]; }
 
-    int rgb() {
-        int b = 8, m = 255;
-        return ( s[0] & m ) | ( s[1] & m ) << b | ( s[2] & m ) << 2*b;
+    template<typename F>
+    auto f(F f) {
+        return vec3<T>(f(s[0]), f(s[1]), f(s[2]));
     }
 };
 
