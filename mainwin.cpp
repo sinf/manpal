@@ -114,7 +114,7 @@ MainWin::MainWin(QWidget *parent) :
     ui->tbpal->setModel(new PaletteM(this));
     ui->hsplit3->setSizes({20,80,20});
 
-    load_src("/home/arho/Pictures/t3_5uyryd.jpeg");
+    load_src("img/uyryd.jpg");
     scaleSrc();
 }
 
