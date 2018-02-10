@@ -6,22 +6,22 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>312</width>
-    <height>317</height>
+    <width>630</width>
+    <height>554</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Manpal - Manual Palette Tuner</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="0">
+   <layout class="QHBoxLayout" name="horizontalLayout">
+    <item>
      <widget class="QSplitter" name="hsplit3">
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
       <property name="handleWidth">
-       <number>15</number>
+       <number>20</number>
       </property>
       <widget class="QFrame" name="optFrame">
        <property name="sizePolicy">
@@ -74,8 +74,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>47</width>
-             <height>315</height>
+             <width>68</width>
+             <height>514</height>
             </rect>
            </property>
            <property name="sizePolicy">
@@ -240,7 +240,40 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QSpinBox" name="dit_ed_fract">
+                 <layout class="QHBoxLayout" name="horizontalLayout_2">
+                  <item>
+                   <widget class="QSpinBox" name="dit_ed_fract">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="minimum">
+                     <number>-32767</number>
+                    </property>
+                    <property name="maximum">
+                     <number>32767</number>
+                    </property>
+                    <property name="singleStep">
+                     <number>32</number>
+                    </property>
+                    <property name="value">
+                     <number>1024</number>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="dit_ed_reset">
+                    <property name="text">
+                     <string>Reset</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <widget class="QSlider" name="dit_ed_fract2">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
                     <horstretch>0</horstretch>
@@ -248,16 +281,28 @@
                    </sizepolicy>
                   </property>
                   <property name="minimum">
-                   <number>-4096</number>
+                   <number>0</number>
                   </property>
                   <property name="maximum">
-                   <number>4096</number>
+                   <number>1536</number>
                   </property>
                   <property name="singleStep">
                    <number>32</number>
                   </property>
-                  <property name="value">
+                  <property name="pageStep">
+                   <number>256</number>
+                  </property>
+                  <property name="sliderPosition">
                    <number>1024</number>
+                  </property>
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="invertedAppearance">
+                   <bool>false</bool>
+                  </property>
+                  <property name="invertedControls">
+                   <bool>false</bool>
                   </property>
                  </widget>
                 </item>
@@ -311,8 +356,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>121</width>
-          <height>281</height>
+          <width>351</width>
+          <height>516</height>
          </rect>
         </property>
         <property name="sizePolicy">
@@ -412,121 +457,17 @@
         </layout>
        </widget>
       </widget>
-      <widget class="QSplitter" name="rhsplitter">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Ignored" vsizetype="Preferred">
-         <horstretch>10</horstretch>
-         <verstretch>100</verstretch>
-        </sizepolicy>
-       </property>
+      <widget class="QSplitter" name="splitter">
        <property name="orientation">
         <enum>Qt::Vertical</enum>
        </property>
        <property name="handleWidth">
-        <number>15</number>
+        <number>20</number>
        </property>
-       <widget class="QTableView" name="tbpal">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Ignored" vsizetype="Expanding">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="verticalScrollBarPolicy">
-         <enum>Qt::ScrollBarAlwaysOff</enum>
-        </property>
-        <property name="horizontalScrollBarPolicy">
-         <enum>Qt::ScrollBarAlwaysOff</enum>
-        </property>
-        <property name="sizeAdjustPolicy">
-         <enum>QAbstractScrollArea::AdjustIgnored</enum>
-        </property>
-        <property name="autoScroll">
-         <bool>false</bool>
-        </property>
-        <property name="autoScrollMargin">
-         <number>1</number>
-        </property>
-        <property name="editTriggers">
-         <set>QAbstractItemView::NoEditTriggers</set>
-        </property>
-        <property name="tabKeyNavigation">
-         <bool>false</bool>
-        </property>
-        <property name="dragEnabled">
-         <bool>true</bool>
-        </property>
-        <property name="dragDropMode">
-         <enum>QAbstractItemView::InternalMove</enum>
-        </property>
-        <property name="defaultDropAction">
-         <enum>Qt::MoveAction</enum>
-        </property>
-        <property name="alternatingRowColors">
-         <bool>false</bool>
-        </property>
-        <property name="selectionMode">
-         <enum>QAbstractItemView::SingleSelection</enum>
-        </property>
-        <property name="textElideMode">
-         <enum>Qt::ElideMiddle</enum>
-        </property>
-        <property name="verticalScrollMode">
-         <enum>QAbstractItemView::ScrollPerPixel</enum>
-        </property>
-        <property name="horizontalScrollMode">
-         <enum>QAbstractItemView::ScrollPerPixel</enum>
-        </property>
-        <property name="showGrid">
-         <bool>true</bool>
-        </property>
-        <property name="gridStyle">
-         <enum>Qt::DotLine</enum>
-        </property>
-        <property name="wordWrap">
-         <bool>false</bool>
-        </property>
-        <property name="cornerButtonEnabled">
-         <bool>false</bool>
-        </property>
-        <attribute name="horizontalHeaderVisible">
-         <bool>false</bool>
-        </attribute>
-        <attribute name="verticalHeaderVisible">
-         <bool>false</bool>
-        </attribute>
-       </widget>
-       <widget class="QFrame" name="frame_se">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <layout class="QVBoxLayout" name="rhbuttons">
-         <property name="sizeConstraint">
-          <enum>QLayout::SetDefaultConstraint</enum>
-         </property>
-         <property name="leftMargin">
-          <number>0</number>
-         </property>
-         <property name="topMargin">
-          <number>0</number>
-         </property>
-         <property name="rightMargin">
-          <number>0</number>
-         </property>
-         <property name="bottomMargin">
-          <number>0</number>
-         </property>
+       <widget class="QWidget" name="verticalLayoutWidget">
+        <layout class="QVBoxLayout" name="frame_ne">
          <item>
-          <layout class="QVBoxLayout" name="verticalLayout_5"/>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout">
+          <layout class="QHBoxLayout" name="ncolors_horz">
            <property name="sizeConstraint">
             <enum>QLayout::SetDefaultConstraint</enum>
            </property>
@@ -559,7 +500,108 @@
           </layout>
          </item>
          <item>
-          <widget class="QPushButton" name="pushButton">
+          <widget class="QTableView" name="tbpal">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Ignored" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="verticalScrollBarPolicy">
+            <enum>Qt::ScrollBarAlwaysOff</enum>
+           </property>
+           <property name="horizontalScrollBarPolicy">
+            <enum>Qt::ScrollBarAlwaysOff</enum>
+           </property>
+           <property name="sizeAdjustPolicy">
+            <enum>QAbstractScrollArea::AdjustIgnored</enum>
+           </property>
+           <property name="autoScroll">
+            <bool>false</bool>
+           </property>
+           <property name="autoScrollMargin">
+            <number>1</number>
+           </property>
+           <property name="editTriggers">
+            <set>QAbstractItemView::NoEditTriggers</set>
+           </property>
+           <property name="tabKeyNavigation">
+            <bool>false</bool>
+           </property>
+           <property name="dragEnabled">
+            <bool>true</bool>
+           </property>
+           <property name="dragDropMode">
+            <enum>QAbstractItemView::InternalMove</enum>
+           </property>
+           <property name="defaultDropAction">
+            <enum>Qt::MoveAction</enum>
+           </property>
+           <property name="alternatingRowColors">
+            <bool>false</bool>
+           </property>
+           <property name="selectionMode">
+            <enum>QAbstractItemView::MultiSelection</enum>
+           </property>
+           <property name="textElideMode">
+            <enum>Qt::ElideMiddle</enum>
+           </property>
+           <property name="verticalScrollMode">
+            <enum>QAbstractItemView::ScrollPerPixel</enum>
+           </property>
+           <property name="horizontalScrollMode">
+            <enum>QAbstractItemView::ScrollPerPixel</enum>
+           </property>
+           <property name="showGrid">
+            <bool>true</bool>
+           </property>
+           <property name="gridStyle">
+            <enum>Qt::SolidLine</enum>
+           </property>
+           <property name="wordWrap">
+            <bool>false</bool>
+           </property>
+           <property name="cornerButtonEnabled">
+            <bool>false</bool>
+           </property>
+           <attribute name="horizontalHeaderVisible">
+            <bool>false</bool>
+           </attribute>
+           <attribute name="verticalHeaderVisible">
+            <bool>false</bool>
+           </attribute>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QFrame" name="frame_se">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <layout class="QVBoxLayout" name="rhbuttons">
+         <property name="sizeConstraint">
+          <enum>QLayout::SetDefaultConstraint</enum>
+         </property>
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QPushButton" name="pal_s_clear">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
              <horstretch>0</horstretch>
@@ -567,7 +609,31 @@
             </sizepolicy>
            </property>
            <property name="text">
-            <string>PushButton</string>
+            <string>Unselect</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pal_add">
+           <property name="text">
+            <string>Add</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pal_del">
+           <property name="text">
+            <string>Delete</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pal_mod">
+           <property name="text">
+            <string>Modify</string>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -620,14 +686,17 @@ R: replace
      </widget>
     </item>
    </layout>
+   <zorder>hsplit3</zorder>
+   <zorder></zorder>
+   <zorder>verticalLayoutWidget</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>312</width>
-     <height>22</height>
+     <width>630</width>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuHello">
@@ -647,7 +716,7 @@ R: replace
     <addaction name="actionExport_PPM"/>
     <addaction name="separator"/>
     <addaction name="actionClear"/>
-    <addaction name="actionSort_by_value"/>
+    <addaction name="actionSort"/>
     <addaction name="actionCreate_from_histogram"/>
     <addaction name="actionCreate_grayscale"/>
    </widget>
@@ -707,7 +776,7 @@ R: replace
     <string>&amp;Reset settings</string>
    </property>
   </action>
-  <action name="actionSort_by_value">
+  <action name="actionSort">
    <property name="text">
     <string>&amp;Sort</string>
    </property>
@@ -736,22 +805,6 @@ R: replace
  <layoutdefault spacing="6" margin="11"/>
  <resources/>
  <connections>
-  <connection>
-   <sender>actionLoad</sender>
-   <signal>triggered()</signal>
-   <receiver>MainWin</receiver>
-   <slot>open()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>199</x>
-     <y>149</y>
-    </hint>
-   </hints>
-  </connection>
   <connection>
    <sender>hsplit3</sender>
    <signal>splitterMoved(int,int)</signal>
@@ -864,6 +917,134 @@ R: replace
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>dit_ed_fract2</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWin</receiver>
+   <slot>setDitherE(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>43</x>
+     <y>427</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>314</x>
+     <y>242</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>dit_ed_reset</sender>
+   <signal>pressed()</signal>
+   <receiver>MainWin</receiver>
+   <slot>resetDitherE()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>46</x>
+     <y>400</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>314</x>
+     <y>242</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>dit_ed_fract2</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>dit_ed_fract</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>43</x>
+     <y>427</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>21</x>
+     <y>400</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pal_s_clear</sender>
+   <signal>pressed()</signal>
+   <receiver>tbpal</receiver>
+   <slot>clearSelection()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>520</x>
+     <y>367</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>520</x>
+     <y>146</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pal_add</sender>
+   <signal>pressed()</signal>
+   <receiver>MainWin</receiver>
+   <slot>addColor()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>545</x>
+     <y>385</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>314</x>
+     <y>276</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pal_del</sender>
+   <signal>pressed()</signal>
+   <receiver>MainWin</receiver>
+   <slot>delColors()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>545</x>
+     <y>414</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>314</x>
+     <y>276</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pal_mod</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWin</receiver>
+   <slot>colorEditMode(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>545</x>
+     <y>435</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>314</x>
+     <y>276</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionSort</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWin</receiver>
+   <slot>sortColors()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>314</x>
+     <y>276</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>open()</slot>
@@ -873,5 +1054,10 @@ R: replace
   <slot>setDitherE(int)</slot>
   <slot>setDitherPP(int)</slot>
   <slot>setColorCount(int)</slot>
+  <slot>resetDitherE()</slot>
+  <slot>addColor()</slot>
+  <slot>delColors()</slot>
+  <slot>sortColors()</slot>
+  <slot>colorEditMode(bool)</slot>
  </slots>
 </ui>

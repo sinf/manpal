@@ -26,23 +26,33 @@ public:
 protected:
     void resizeEvent(QResizeEvent *);
     static int dpyRows() { return the_pal_c+7>>3; }
-    QColor sample();
 
-private slots:
+public slots:
     bool load_src(const QString &);
     void open();
 
     void scaleSrc();
     void preview();
     void setDitherMethod(int x) { dither_method=x; preview(); }
-    void setDitherE(int x) { ed_err_fract=x; preview(); }
     void setDitherPP(int x) { ed_pingpong_enable=x; preview(); }
+    void setDitherE(int x);
+    void resetDitherE();
     void setColorCount(int x);
+
+    QColor sample();
+    void addColor();
+    void delColors();
+    void setColor();
+    void colorEditMode(bool);
+    void refreshTable();
+    void sortColors();
 
 private:
     Ui::MainWin *ui;
     QImage img_src;
+    QColor sampled_color;
     int dither_method;
+    bool live_edit_on;
 
 protected:
     void keyPressEvent(QKeyEvent *);

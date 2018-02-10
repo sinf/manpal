@@ -19,7 +19,9 @@ SOURCES += main.cpp\
 
 HEADERS  += mainwin.h \
     palettem.h \
-    vec3.h
+    vec3.h \
+    dithered.h \
+    imgfilter.h
 
 FORMS    += mainwin.ui
 
