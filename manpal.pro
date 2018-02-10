@@ -13,7 +13,6 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = manpal
 TEMPLATE = app
 
-
 SOURCES += main.cpp\
         mainwin.cpp \
     palettem.cpp
@@ -23,3 +22,15 @@ HEADERS  += mainwin.h \
     vec3.h
 
 FORMS    += mainwin.ui
+
+# need to run 'make install'
+#datathings.path = $$OUT_PWD
+#datathings.files = img/*
+#INSTALLS += datathings
+
+copydata.commands = $(COPY_DIR) $$PWD/img $$OUT_PWD
+first.depends = $(first) copydata
+export(first.depends)
+export(copydata.commands)
+QMAKE_EXTRA_TARGETS += first copydata
+
