@@ -26,11 +26,13 @@ public:
 protected:
     void resizeEvent(QResizeEvent *);
     static int dpyRows() { return the_pal_c+7>>3; }
+    QString export_s();
 
 public slots:
     bool load_src(const QString &);
     void open();
 
+    // visual feedback image
     void scaleSrc();
     void preview();
     void setDitherMethod(int x) { dither_method=x; preview(); }
@@ -39,6 +41,7 @@ public slots:
     void resetDitherE();
     void setColorCount(int x);
 
+    // palette edits
     QColor sample();
     void addColor();
     void delColors();
@@ -46,6 +49,15 @@ public slots:
     void colorEditMode(bool);
     void refreshTable();
     void sortColors();
+    void genGray();
+    void genHist();
+
+    // export functions
+    void exp_preview();
+    void exp_msg();
+    void exp_file();
+    void exp_preset(int);
+    void exp_help();
 
 private:
     Ui::MainWin *ui;

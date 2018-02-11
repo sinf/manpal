@@ -15,6 +15,7 @@
 #include "vec3.h"
 #include "dithered.h"
 #include "imgfilter.h"
+#include "dkm.hpp"
 
 int pack(ivec3 v) {
     int b = 8, m = 255;
@@ -77,6 +78,19 @@ dither_ed<DitherS2>,
 // dither_ed<DitherSL>,
 };
 
+static const struct {
+    QString header, footer, fmt;
+} fmt_preset[] = {
+    {"", "", "#$(rx)$(gx)$(bx)"},
+    {"colors=[", "]", "($(rf), $(gf), $(bf)]"},
+};
+
+static const QStringList fmt_preset_names(
+{
+"HTML hex",
+"Python float"
+});
+
 template<typename F>
 void adjust_table_cells(F set_sz, int dim, int n)
 {
@@ -108,6 +122,7 @@ MainWin::MainWin(QWidget *parent) :
 {
     ui->setupUi(this);
     ui->dit_mode->addItems(qfun_names);
+    ui->exp_preset->addItems(fmt_preset_names);
     ui->tbpal->setModel(new PaletteM(this));
     ui->hsplit3->setSizes({20,80,20});
     load_src("img/uyryd.jpg");
@@ -161,9 +176,9 @@ static void initializeImageFileDialog(QFileDialog &dialog, QFileDialog::AcceptMo
  * gamma-correct scaling
  * use nearest scaling when upscaling, linear? filter when downscaling
  */
-auto gscaled(QImage const &i, int w, int h, Qt::AspectRatioMode m)
+auto gscaled(QImage const &i, int w, int h, Qt::AspectRatioMode m, int smooth=1)
 {
-    auto t = true ? //i.width() > w || i.height() > h ?
+    auto t = smooth ? //i.width() > w || i.height() > h ?
     Qt::SmoothTransformation : Qt::FastTransformation;
     //w &= ~3; h &= ~3;
     return filter(filter(i,sRGBtoL).scaled(w,h,m,t),LtosRGB);
@@ -353,3 +368,90 @@ void MainWin::sortColors()
     sort_palette();
 }
 
+#define tdoc(xxx) ui->xxx->document()
+
+QString MainWin::export_s()
+{
+    return format_pal(
+        tdoc(exp_header)->toPlainText(),
+        tdoc(exp_footer)->toPlainText(),
+        tdoc(exp_fmt)->toPlainText(), the_pal, the_pal_c);
+}
+
+void MainWin::exp_preview()
+{
+    auto s = format_color(the_pal[0], tdoc(exp_fmt)->toPlainText());
+    ui->exp_preview->setText(s);
+}
+
+void MainWin::exp_msg()
+{
+    QMessageBox::information(this,
+    QGuiApplication::applicationDisplayName(),
+    export_s(), tr("Close"));
+}
+
+void MainWin::exp_file()
+{
+    exp_msg();
+}
+
+void MainWin::exp_preset(int p)
+{
+    tdoc(exp_header)->setPlainText(fmt_preset[p].header);
+    tdoc(exp_footer)->setPlainText(fmt_preset[p].footer);
+    tdoc(exp_fmt)->setPlainText(fmt_preset[p].fmt);
+    exp_preview();
+}
+
+void MainWin::exp_help()
+{
+    QMessageBox::information(this,
+    QGuiApplication::applicationDisplayName(),
+    color_format_help,
+    tr("Close"));
+}
+
+void MainWin::genGray()
+{
+    float v = 0;
+    float dv = 1.0f / (the_pal_c-1);
+    for(int i=0; i<the_pal_c; ++i, v+=dv)
+        set_color(i, QColor::fromRgbF(v,v,v));
+    refreshTable();
+    preview();
+}
+
+static auto get_kmeans_data(QImage const &src)
+{
+    std::vector<std::array<float,3>> data;
+    int y, x, w=src.width(), h=src.height();
+    for( y=0; y<h; ++y ) {
+        auto s = (int32_t const*) src.scanLine(y);
+        for( x=0; x<w; x++ ) {
+            int32_t rgb = s[x];
+            float
+            b = ( rgb & 0xFF ),
+            g = ( rgb >> 8 & 0xff ),
+            r = ( rgb >> 16 & 0xff );
+            data.push_back({{r,g,b}});
+        }
+    }
+    return data;
+}
+
+void MainWin::genHist()
+{
+    const int n = the_pal_c;
+    auto data = get_kmeans_data(gscaled(img_src,128,80,Qt::IgnoreAspectRatio,1));
+    auto mc = dkm::kmeans_lloyd(data, n);
+
+    for( int i=0; i<n; ++i ) {
+        auto m = std::get<0>(mc)[i];
+        int r = (int) m[2], g = (int) m[1], b = (int) m[0];
+        set_color(i, QColor(r,g,b));
+    }
+
+    refreshTable();
+    preview();
+}
