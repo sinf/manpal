@@ -21,7 +21,9 @@ HEADERS  += mainwin.h \
     palettem.h \
     vec3.h \
     dithered.h \
-    imgfilter.h
+    imgfilter.h \
+    dkm_utils.hpp \
+    dkm.hpp
 
 FORMS    += mainwin.ui
 

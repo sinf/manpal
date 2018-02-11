@@ -50,4 +50,8 @@ public:
     QModelIndex getLast();
 };
 
+extern const QString color_format_help;
+QString format_color(QColor c0, QString column );
+QString format_pal(QString s, QString const &end, QString const & color_fmt, QColor const pal[], int n_colors);
+
 #endif // PALETTEM_H

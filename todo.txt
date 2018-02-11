@@ -1,0 +1,18 @@
+dithering: different error measuring functions
+multiple ways to sort selected colors
+image histogram
+generate n-color palette from histogram
+	- use some clustering library
+color wheel / color picker
+fix image loading
+save dithered output image
+
+gif compression ratio optimizing dithering algo
+	transpose image, ED with mostly horizontal distribution, transpose again
+		-> error distributed mostly vertically. horizontal columns nearly constant color?
+	1-dimensional dither with some randomization to reduce patterns ?
+
+bayer dither
+
+palette export: png (ffmpeg), gimp palette
+

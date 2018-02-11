@@ -159,3 +159,80 @@ QModelIndex PaletteM::getLast()
     return index(r,c);
 }
 
+static void getcf(float xf[14], int b[14], QColor c)
+{
+    qreal x[14];
+    c.getRgbF(x, x+1, x+2, x+3);
+    c.getHsvF(x+4, x+5, x+6);
+    c.getHslF(x+7, x+8, x+9);
+    c.getCmykF(x+10, x+11, x+12, x+13);
+
+    for( int i=0; i<14; ++i ) {
+        int val = x[i] * 255;
+        xf[i] = x[i];
+        b[i] = val < 0 ? 0 : ( val > 255 ? 255 : val );
+    }
+}
+
+const QString color_format_help =
+"$(...) for sRGB\n"
+"$[...] for linear RGB\n"
+"where ... consists of a color component letter and an optional number format letter\n"
+"Color components:\n"
+"  r,g,b,a  red, green, blue, alpha\n"
+"  h,s,l    hue, saturation, luminance\n"
+"  H,S,V    hue, saturation, value\n"
+"  c,m,y,k  the CMYK model\n"
+"Format suffixes:\n"
+"  (none)   integer in range 0-255\n"
+"  x        2-digit hex value in range 00-FF\n"
+"  f        real number in range 0.0-1.0\n";
+
+QString format_color(QColor c0, QString column )
+{
+    // c0 in sRGB color space
+    // c1 is linear
+    const QColor
+    c1 = QColor(sRGBtoLf(c0.redF()), sRGBtoLf(c0.greenF()), sRGBtoLf(c0.blueF()));
+
+    const int nc = 14;
+    const char xc[] = "rgbahsvHSLcmyk";
+    float xf[2][nc];
+    int xb[2][nc];
+
+    getcf( xf[0], xb[0], c0 );
+    getcf( xf[1], xb[1], c1 );
+
+    for( int k=0; k<2; ++k ) {
+        for( int j=0; j<nc; ++j ) {
+            float f = xf[k][j];
+            int B = xb[k][j];
+            char l = "(["[k], r = ")]"[k], c = xc[j];
+            char val[3][32], pat[3][32];
+
+            sprintf(val[0], "%d", B);
+            sprintf(val[1], "%02x", B);
+            sprintf(val[2], "%.5f", f);
+
+            sprintf(pat[0], "$%c%c%c", l, c, r);
+            sprintf(pat[1], "$%c%cx%c", l, c, r);
+            sprintf(pat[2], "$%c%cf%c", l, c, r);
+
+            for( int m=0; m<3; ++m )
+                column = column.replace(pat[m], val[m]);
+        }
+    }
+    return column;
+}
+
+QString format_pal(QString s, QString const &end, QString const & color_fmt, QColor const pal[], int count)
+{
+    auto nl = QChar::LineFeed;
+    s.append(nl);
+    for(int i=0; i<count; ++i) {
+        s.append(format_color(pal[i], color_fmt));
+        s.append(nl);
+    }
+    s.append(end);
+    return s;
+}
