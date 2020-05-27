@@ -5,6 +5,8 @@ Features:
 * interactive color picking
 * colorspaces XYZ, HSV, RGB, and ?
 * Qt 5 interface.
+
 ![Result comparison image with GIMP](comparison.png)
+
 2018 Arho Mahlamäki
 
